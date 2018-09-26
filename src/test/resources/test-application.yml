@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    driverClassName:
+      com.mariadb.jdbc.Driver
+    url:
+      jdbc:mariadb://localhost:3306/music?allowPublicKeyRetrieval=true&useSSL=false
+    username:
+      dbuser
+    password:
+      dbpassword
+
+  jpa:
+    generate-ddl:
+      true
+    hibernate:
+      ddl-auto:
+        create
+    properties:
+      hibernate:
+        dialect:
+          org.hibernate.dialect.MySQL5Dialect
