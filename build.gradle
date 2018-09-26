@@ -1,0 +1,53 @@
+buildscript {
+    ext {
+        springBootVersion = '2.0.5.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+
+ext {
+    springCloudServicesVersion = '2.0.1.RELEASE'
+    springCloudVersion = 'Finchley.SR1'
+}
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('io.pivotal.spring.cloud:spring-cloud-services-starter-circuit-breaker')
+    compile('io.pivotal.spring.cloud:spring-cloud-services-starter-config-client')
+    compile('io.pivotal.spring.cloud:spring-cloud-services-starter-service-registry')
+    compile('org.springframework.cloud:spring-cloud-starter-openfeign')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('org.springframework.cloud:spring-cloud-starter-contract-stub-runner')
+    testCompile('org.springframework.cloud:spring-cloud-starter-contract-verifier')
+    testCompile group: 'com.github.springtestdbunit', name: 'spring-test-dbunit', version: '1.2.0'
+    testCompile group: 'org.dbunit', name: 'dbunit', 'version':'2.5.0'
+    testCompile('com.h2database:h2')
+    implementation 'org.mariadb.jdbc:mariadb-java-client:2.1.2'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "io.pivotal.spring.cloud:spring-cloud-services-dependencies:${springCloudServicesVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
