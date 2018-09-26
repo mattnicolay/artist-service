@@ -35,11 +35,11 @@ public class ArtistRepositoryIntegrationTests {
 
   @Test
   public void findByName_ValidName_ReturnsArtist() {
-    Artist artist = artistRepository.findByName("Whitney");
+    Artist artist = artistRepository.findByName("Ryo Fukui");
 
     assertThat(artist, is(notNullValue()));
-    assertThat(artist.getId(), is(3L));
-    assertThat(artist.getName(), is(equalTo("Whitney")));
+    assertThat(artist.getId(), is(2L));
+    assertThat(artist.getName(), is(equalTo("Ryo Fukui")));
   }
 
   @Test
