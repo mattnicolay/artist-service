@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(value = "song-service", fallback = SongFallback.class)
 public interface SongClient {
   @RequestMapping("/songs")
-  List<Song> getSongsByArtistName(@RequestParam("artist") String name);
+  List<Song> getSongsByArtistId(@RequestParam("artistId") long id);
 
   @RequestMapping("/actuator/health")
   String healthCheck();
@@ -21,7 +21,7 @@ public interface SongClient {
 class SongFallback implements SongClient {
 
   @Override
-  public List<Song> getSongsByArtistName(String name) {
+  public List<Song> getSongsByArtistId(long id) {
     return new ArrayList<>();
   }
 

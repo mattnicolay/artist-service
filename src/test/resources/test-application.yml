@@ -23,3 +23,7 @@ spring:
 feign:
   hystrix:
     enabled: true
+  client:
+    config:
+      default:
+        loggerLevel: full

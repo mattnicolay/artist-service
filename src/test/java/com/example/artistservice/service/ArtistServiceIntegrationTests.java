@@ -23,6 +23,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
+import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -36,8 +38,12 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
     DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class,
     DbUnitTestExecutionListener.class})
-@TestPropertySource("classpath:test-application.yml")
 @DatabaseSetup("classpath:test-dataset.xml")
+@AutoConfigureStubRunner(
+    ids = {"com.example:album-service:+:stubs:8100",
+    "com.example:song-service:+:stubs:8200"},
+    stubsMode = StubsMode.LOCAL)
+@TestPropertySource("classpath:test-application.yml")
 public class ArtistServiceIntegrationTests {
 
   @Autowired
@@ -51,29 +57,6 @@ public class ArtistServiceIntegrationTests {
 
   @Test
   public void getAllArtists_NonEmptyDatabase_ReturnsListOfArtists() {
-    getAllArtistsHelper(false, false);
-  }
-
-  @Test
-  public void getAllArtists_EmptyDatabase_ReturnsEmptyListOfArtists() {
-    artistRepository.deleteAll();
-    List<ArtistDisplay> artistDisplays = artistService.getAllArtists();
-
-    assertThat(artistDisplays, is(notNullValue()));
-    assertThat(artistDisplays.isEmpty(), is(true));
-  }
-
-  @Test
-  public void getAllArtists_AlbumServiceIsDown_ReturnsEmptyListOfAlbums() {
-    getAllArtistsHelper(true, false);
-  }
-
-  @Test
-  public void getAllArtists_SongServiceIsDown_ReturnsEmptyListOfSongs() {
-    getAllArtistsHelper(false, true);
-  }
-
-  private void getAllArtistsHelper(boolean albumsEmpty, boolean songsEmpty) {
     List<ArtistDisplay> artistDisplays = artistService.getAllArtists();
     List<Artist> dbArtists = artistRepository.findAll();
 
@@ -85,36 +68,27 @@ public class ArtistServiceIntegrationTests {
       assertThat(artistDisplay.getId(), is(notNullValue()));
       assertThat(artistDisplay.getName(), is(notNullValue()));
       assertThat(artistDisplay.getAlbums(), is(notNullValue()));
-      assertThat(artistDisplay.getAlbums().isEmpty(), is(albumsEmpty));
+      assertThat(artistDisplay.getAlbums().isEmpty(), is(false));
       assertThat(artistDisplay.getSongs(), is(notNullValue()));
-      assertThat(artistDisplay.getSongs().isEmpty(), is(songsEmpty));
+      assertThat(artistDisplay.getSongs().isEmpty(), is(false));
 
       artists.add(new Artist(artistDisplay.getName()));
     });
     dbArtists.forEach(artist -> assertThat(artists.contains(artist), is(true)));
   }
 
+
+  @Test
+  public void getAllArtists_EmptyDatabase_ReturnsEmptyListOfArtists() {
+    artistRepository.deleteAll();
+    List<ArtistDisplay> artistDisplays = artistService.getAllArtists();
+
+    assertThat(artistDisplays, is(notNullValue()));
+    assertThat(artistDisplays.isEmpty(), is(true));
+  }
+
   @Test
   public void getArtistById_ValidId_ReturnsArtist() {
-    getArtistByIdHelper(false, false);
-  }
-
-  @Test
-  public void getArtistById_InvalidId_ReturnsNull() {
-    assertThat(artistService.getArtistById(-1), is(nullValue()));
-  }
-
-  @Test
-  public void getArtistById_AlbumServiceIsDown_AlbumListIsEmpty() {
-    getArtistByIdHelper(true, false);
-  }
-
-  @Test
-  public void getArtistById_SongServiceIsDown_SongListIsEmpty() {
-    getArtistByIdHelper(false, true);
-  }
-
-  private void getArtistByIdHelper(boolean albumsEmpty, boolean songsEmpty) {
     ArtistDisplay artistDisplay = artistService.getArtistById(1L);
     Artist dbArtist = artistRepository.findById(1L);
 
@@ -124,8 +98,13 @@ public class ArtistServiceIntegrationTests {
     assertThat(artistDisplay.getId(), is(equalTo(dbArtist.getId())));
     assertThat(artistDisplay.getName(), is(equalTo(dbArtist.getName())));
 
-    assertThat(artistDisplay.getAlbums().isEmpty(), is(albumsEmpty));
-    assertThat(artistDisplay.getSongs().isEmpty(), is(songsEmpty));
+    assertThat(artistDisplay.getAlbums().isEmpty(), is(false));
+    assertThat(artistDisplay.getSongs().isEmpty(), is(false));
+  }
+
+  @Test
+  public void getArtistById_InvalidId_ReturnsNull() {
+    assertThat(artistService.getArtistById(-1), is(nullValue()));
   }
 
   @Test
@@ -136,16 +115,6 @@ public class ArtistServiceIntegrationTests {
   @Test
   public void getArtistByName_InvalidName_ReturnsNull() {
     assertThat(artistService.getArtistByName("Lang Lang"), is(nullValue()));
-  }
-
-  @Test
-  public void getArtistByName_AlbumServiceIsDown_AlbumListIsEmpty() {
-    getArtistByNameHelper(true, false);
-  }
-
-  @Test
-  public void getArtistByName_SongServiceIsDown_SongListIsEmpty() {
-    getArtistByNameHelper(false, true);
   }
 
   private void getArtistByNameHelper(boolean albumsEmpty, boolean songsEmpty) {
@@ -252,7 +221,7 @@ public class ArtistServiceIntegrationTests {
   }
 
   private Album getAlbum1() {
-    return new Album(1L, "A Moon Shaped Pool", "2017");
+    return new Album(1L, "A Moon Shaped Pool", "2016");
   }
 
   private Album getAlbum2() {
@@ -260,7 +229,7 @@ public class ArtistServiceIntegrationTests {
   }
 
   private Song getSong1() {
-    return new Song(1L, "Daydreaming", "2017", "6:47");
+    return new Song(1L, "Daydreaming", "2016", "6:47");
   }
 
   private Song getSong2() {

@@ -15,6 +15,8 @@ public class Song {
     this.duration = duration;
   }
 
+  public Song() {}
+
   public long getId() {
     return id;
   }

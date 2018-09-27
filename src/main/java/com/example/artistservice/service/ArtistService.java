@@ -7,7 +7,9 @@ import com.example.artistservice.model.Artist;
 import com.example.artistservice.model.ArtistDisplay;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class ArtistService {
@@ -15,6 +17,8 @@ public class ArtistService {
   private ArtistRepository artistRepository;
   private AlbumClient albumClient;
   private SongClient songClient;
+  @Autowired
+  private RestTemplate restTemplate;
 
   public ArtistService(ArtistRepository artistRepository,
       AlbumClient albumClient, SongClient songClient) {
@@ -26,11 +30,12 @@ public class ArtistService {
   public List<ArtistDisplay> getAllArtists() {
     return artistRepository.findAll()
         .stream()
-        .map(artist -> new ArtistDisplay(
-            artist.getId(),
-            artist.getName(),
-            albumClient.getAlbumsByArtistName(artist.getName()),
-            songClient.getSongsByArtistName(artist.getName())))
+        .map(artist ->
+          new ArtistDisplay(
+              artist.getId(),
+              artist.getName(),
+              albumClient.getAlbumsByArtistId(artist.getId()),
+              songClient.getSongsByArtistId(artist.getId())))
         .collect(Collectors.toList());
   }
 
@@ -40,8 +45,8 @@ public class ArtistService {
         : new ArtistDisplay(
         artist.getId(),
         artist.getName(),
-        albumClient.getAlbumsByArtistName(artist.getName()),
-        songClient.getSongsByArtistName(artist.getName()));
+        albumClient.getAlbumsByArtistId(artist.getId()),
+        songClient.getSongsByArtistId(artist.getId()));
   }
 
   public ArtistDisplay getArtistByName(String name) {
@@ -50,8 +55,8 @@ public class ArtistService {
         : new ArtistDisplay(
             artist.getId(),
             artist.getName(),
-            albumClient.getAlbumsByArtistName(artist.getName()),
-            songClient.getSongsByArtistName(artist.getName()));
+            albumClient.getAlbumsByArtistId(artist.getId()),
+            songClient.getSongsByArtistId(artist.getId()));
   }
 
   public Artist createArtist(Artist newArtist) {

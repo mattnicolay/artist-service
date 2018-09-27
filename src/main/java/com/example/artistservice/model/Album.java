@@ -13,6 +13,8 @@ public class Album {
     this.year = year;
   }
 
+  public Album() {}
+
   public long getId() {
     return id;
   }

@@ -6,7 +6,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.example.artistservice.dao.AlbumClient;
@@ -39,22 +38,20 @@ public class ArtistServiceUnitTests {
   @Before
   public void setup() {
     artistService = new ArtistService(artistRepository, albumClient, songClient);
-    when(albumClient.getAlbumsByArtistName(anyString()))
+    when(albumClient.getAlbumsByArtistId(anyLong()))
         .thenReturn(Arrays.asList(getAlbum1()));
-    when(songClient.getSongsByArtistName(anyString()))
+    when(songClient.getSongsByArtistId(anyLong()))
         .thenReturn(Arrays.asList(getSong1()));
     when(artistRepository.findByName("Radiohead")).thenReturn(getArtist1());
     when(artistRepository.findById(1L)).thenReturn(getArtist1());
-    when(albumClient.healthCheck()).thenReturn("UP");
-    when(songClient.healthCheck()).thenReturn("UP");
   }
 
   @Test
   public void getAllArtists_DatabaseNotEmpty_ReturnsListOfArtists() {
     when(artistRepository.findAll()).thenReturn(getArtists());
-    when(albumClient.getAlbumsByArtistName("Ryo Fukui"))
+    when(albumClient.getAlbumsByArtistId(2L))
         .thenReturn(Arrays.asList(getAlbum2()));
-    when(songClient.getSongsByArtistName("Ryo Fukui"))
+    when(songClient.getSongsByArtistId(2L))
         .thenReturn(Arrays.asList(getSong2()));
     List<ArtistDisplay> artistDisplays = artistService.getAllArtists();
 
@@ -85,7 +82,7 @@ public class ArtistServiceUnitTests {
   @Test
   public void getAllArtists_AlbumServiceIsDown_ReturnsEmptyListOfAlbums() {
     when(artistRepository.findAll()).thenReturn(getArtists());
-    when(albumClient.getAlbumsByArtistName(anyString()))
+    when(albumClient.getAlbumsByArtistId(anyLong()))
         .thenReturn(new ArrayList<>());
     List<ArtistDisplay> artistDisplays = artistService.getAllArtists();
 
@@ -105,7 +102,7 @@ public class ArtistServiceUnitTests {
   @Test
   public void getAllArtists_SongServiceIsDown_ReturnsEmptyListOfSongs() {
     when(artistRepository.findAll()).thenReturn(getArtists());
-    when(songClient.getSongsByArtistName(anyString()))
+    when(songClient.getSongsByArtistId(anyLong()))
         .thenReturn(new ArrayList<>());
     List<ArtistDisplay> artistDisplays = artistService.getAllArtists();
 
@@ -137,7 +134,7 @@ public class ArtistServiceUnitTests {
 
   @Test
   public void getArtistById_AlbumServiceIsDown_AlbumListIsEmpty() {
-    when(albumClient.getAlbumsByArtistName(anyString()))
+    when(albumClient.getAlbumsByArtistId(anyLong()))
         .thenReturn(new ArrayList<>());
     ArtistDisplay artist = artistService.getArtistById(1L);
 
@@ -148,7 +145,7 @@ public class ArtistServiceUnitTests {
 
   @Test
   public void getArtistById_SongServiceIsDown_SongListIsEmpty() {
-    when(songClient.getSongsByArtistName(anyString()))
+    when(songClient.getSongsByArtistId(anyLong()))
         .thenReturn(new ArrayList<>());
     ArtistDisplay artist = artistService.getArtistById(1L);
 
@@ -172,7 +169,7 @@ public class ArtistServiceUnitTests {
 
   @Test
   public void getArtistByName_AlbumServiceIsDown_AlbumListIsEmpty() {
-    when(albumClient.getAlbumsByArtistName(anyString()))
+    when(albumClient.getAlbumsByArtistId(anyLong()))
         .thenReturn(new ArrayList<>());
     ArtistDisplay artist = artistService.getArtistByName("Radiohead");
 
@@ -182,7 +179,7 @@ public class ArtistServiceUnitTests {
 
   @Test
   public void getArtistByName_SongServiceIsDown_SongListIsEmpty() {
-    when(songClient.getSongsByArtistName(anyString()))
+    when(songClient.getSongsByArtistId(anyLong()))
         .thenReturn(new ArrayList<>());
     ArtistDisplay artist = artistService.getArtistByName("Radiohead");
 
